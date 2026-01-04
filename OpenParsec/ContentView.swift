@@ -8,15 +8,15 @@ enum ViewType
 	case test
 }
 
-struct ContentView:View
+struct ContentView: View
 {
-	@State var curView:ViewType = .login
+	@State var curView: ViewType = .login
 
-	let defaultTransition = AnyTransition.move(edge:.trailing)
+	let defaultTransition = AnyTransition.move(edge: .trailing)
 
-	var body:some View
+	var body: some View
 	{
-		ZStack()
+		VStack
 		{
 			switch curView
 			{
@@ -27,17 +27,15 @@ struct ContentView:View
 						.transition(defaultTransition)
 				case .parsec:
 					ParsecView(self)
-			case .test:
-				TestView(self)
-			 }
+				case .test:
+					TestView(self)
+			}
 		}
-		.onAppear(perform:initApp)
-		.background(Rectangle().fill(Color.black).edgesIgnoringSafeArea(.all))
+		.onAppear(perform: initApp)
 	}
 
 	func initApp()
 	{
-		
 		// Load prefs
 		SettingsHandler.load()
 
@@ -47,7 +45,7 @@ struct ContentView:View
 			let decoder = JSONDecoder()
 
 			print("Retrieved data from keychain: \(data).\nTrying to restore session.")
-			NetworkHandler.clinfo = try? decoder.decode(ClientInfo.self, from:data)
+			NetworkHandler.clinfo = try? decoder.decode(ClientInfo.self, from: data)
 			if NetworkHandler.clinfo != nil
 			{
 				curView = .main
@@ -67,7 +65,8 @@ struct ContentView:View
 		let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrAccount as String: key, kSecReturnData as String: kCFBooleanTrue!, kSecMatchLimit as String: kSecMatchLimitOne]
 		var item: CFTypeRef?
 		let status = SecItemCopyMatching(query as CFDictionary, &item)
-		guard status == errSecSuccess else
+		guard status == errSecSuccess
+		else
 		{
 			if status != errSecItemNotFound
 			{
@@ -75,22 +74,23 @@ struct ContentView:View
 			}
 			return nil
 		}
-		guard let data = item as? Data else
+		guard let data = item as? Data
+		else
 		{
 			return nil
 		}
 		return data
 	}
 
-	public func setView(_ t:ViewType)
+	func setView(_ t: ViewType)
 	{
 		withAnimation(.easeInOut) { curView = t }
 	}
 }
 
-struct ContentView_Previews:PreviewProvider
+struct ContentView_Previews: PreviewProvider
 {
-	static var previews:some View
+	static var previews: some View
 	{
 		ContentView()
 	}
