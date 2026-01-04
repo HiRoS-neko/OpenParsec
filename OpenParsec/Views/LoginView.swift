@@ -1,27 +1,27 @@
-import SwiftUI
 import os
+import SwiftUI
 
-struct LoginView:View
+struct LoginView: View
 {
-	var controller:ContentView?
+	var controller: ContentView?
 
-	@State var inputEmail:String = ""
-	@State var inputPassword:String = ""
-	@State var inputTFA:String = ""
-	@State var isTFAOn:Bool = false
+	@State var inputEmail: String = ""
+	@State var inputPassword: String = ""
+	@State var inputTFA: String = ""
+	@State var isTFAOn: Bool = false
 	@State private var presentTFAAlert = false
-	@State var isLoading:Bool = false
-	@State var showAlert:Bool = false
-	@State var alertText:String = ""
+	@State var isLoading: Bool = false
+	@State var showAlert: Bool = false
+	@State var alertText: String = ""
 
-	init(_ controller:ContentView?)
+	init(_ controller: ContentView?)
 	{
 		self.controller = controller
 	}
 
-	var body:some View
+	var body: some View
 	{
-		ZStack()
+		ZStack
 		{
 			// Background
 			Rectangle()
@@ -29,9 +29,9 @@ struct LoginView:View
 				.edgesIgnoringSafeArea(.all)
 
 			// Login controls
-			VStack(spacing:8)
+			VStack(spacing: 8)
 			{
-				HStack(spacing:2)
+				HStack(spacing: 2)
 				{
 					Image("IconTransparent")
 						.resizable()
@@ -41,25 +41,25 @@ struct LoginView:View
 						.aspectRatio(contentMode: .fit)
 						.padding([.top, .bottom, .trailing])
 				}
-				.frame(height:80)
-				TextField("Email", text:$inputEmail)
+				.frame(height: 80)
+				TextField("Email", text: $inputEmail)
 					.padding()
 					.background(Rectangle().fill(Color("BackgroundField")))
 					.cornerRadius(8)
 					.disableAutocorrection(true)
-					.autocapitalization(/*@START_MENU_TOKEN@*/.none/*@END_MENU_TOKEN@*/)
+					.autocapitalization(/*@START_MENU_TOKEN@*/ .none/*@END_MENU_TOKEN@*/)
 					.keyboardType(.emailAddress)
 					.textContentType(.emailAddress)
-				SecureField("Password", text:$inputPassword)
+				SecureField("Password", text: $inputPassword)
 					.padding()
 					.background(Rectangle().fill(Color("BackgroundField")))
 					.cornerRadius(8)
 					.disableAutocorrection(true)
-					.autocapitalization(/*@START_MENU_TOKEN@*/.none/*@END_MENU_TOKEN@*/)
+					.autocapitalization(/*@START_MENU_TOKEN@*/ .none/*@END_MENU_TOKEN@*/)
 					.textContentType(.password)
-				Button(action:{authenticate()})
+				Button(action: { authenticate() })
 				{
-					ZStack()
+					ZStack
 					{
 						Rectangle()
 							.fill(Color("AccentColor"))
@@ -67,49 +67,49 @@ struct LoginView:View
 						Text("Login")
 							.foregroundColor(.white)
 					}
-					.frame(height:54)
+					.frame(height: 54)
 				}
 			}
-			
+
 			.padding()
-			.frame(maxWidth:400)
+			.frame(maxWidth: 400)
 			.disabled(isLoading) // Disable when loading
 
 			// Loading elements
 			if isLoading || presentTFAAlert
 			{
-				ZStack()
+				ZStack
 				{
 					Rectangle() // Darken background
 						.fill(Color.black)
 						.opacity(0.5)
 						.edgesIgnoringSafeArea(.all)
-					VStack()
+					VStack
 					{
 						if isLoading
 						{
-							ActivityIndicator(isAnimating:$isLoading, style:.large, tint:.white)
-							 .padding()
-						 Text("Loading...")
-							 .multilineTextAlignment(.center)
+							ActivityIndicator(isAnimating: $isLoading, style: .large, tint: .white)
+								.padding()
+							Text("Loading...")
+								.multilineTextAlignment(.center)
 						}
 						else if presentTFAAlert
 						{
 							Text("Please enter your 2FA code from your authenticator app")
 								.multilineTextAlignment(.center)
-							SecureField("2FA Code", text:$inputTFA)
+							SecureField("2FA Code", text: $inputTFA)
 								.padding()
 								.background(Rectangle().fill(Color("BackgroundField")))
 								.foregroundColor(Color("Foreground"))
 								.cornerRadius(8)
 								.disableAutocorrection(true)
-								.autocapitalization(/*@START_MENU_TOKEN@*/.none/*@END_MENU_TOKEN@*/)
+								.autocapitalization(/*@START_MENU_TOKEN@*/ .none/*@END_MENU_TOKEN@*/)
 								.textContentType(.oneTimeCode)
-							HStack()
+							HStack
 							{
-								Button(action:{presentTFAAlert = false})
+								Button(action: { presentTFAAlert = false })
 								{
-									ZStack()
+									ZStack
 									{
 										Rectangle()
 											.fill(Color("BackgroundButton"))
@@ -117,11 +117,11 @@ struct LoginView:View
 										Text("Cancel")
 											.foregroundColor(Color("Foreground"))
 									}
-									.frame(height:54)
+									.frame(height: 54)
 								}
-								Button(action:{authenticate(inputTFA)})
+								Button(action: { authenticate(inputTFA) })
 								{
-									ZStack()
+									ZStack
 									{
 										Rectangle()
 											.fill(Color("AccentColor"))
@@ -129,7 +129,7 @@ struct LoginView:View
 										Text("Enter")
 											.foregroundColor(.white)
 									}
-									.frame(height:54)
+									.frame(height: 54)
 								}
 							}
 						}
@@ -142,9 +142,9 @@ struct LoginView:View
 			}
 		}
 		.foregroundColor(Color("Foreground"))
-		.alert(isPresented:$showAlert)
+		.alert(isPresented: $showAlert)
 		{
-			Alert(title:Text("Login Failed"), message: Text(alertText))
+			Alert(title: Text("Login Failed"), message: Text(alertText))
 		}
 	}
 
@@ -152,7 +152,8 @@ struct LoginView:View
 	{
 		let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrAccount as String: key, kSecValueData as String: data]
 		let status = SecItemAdd(query as CFDictionary, nil)
-		guard status == errSecSuccess else
+		guard status == errSecSuccess
+		else
 		{
 			print("Error saving to Keychain: \(status)")
 			return
@@ -160,7 +161,7 @@ struct LoginView:View
 		print("Data saved to Keychain.")
 	}
 
-	func authenticate(_ tfa:String? = "")
+	func authenticate(_ tfa: String? = "")
 	{
 		#if DEBUG
 		if inputEmail == "test@example.com" // skip authentication (DEBUG ONLY)
@@ -175,35 +176,35 @@ struct LoginView:View
 
 		withAnimation { isLoading = true }
 
-		let apiURL = URL(string:"https://kessel-api.parsec.app/v1/auth")!
+		let apiURL = URL(string: "https://kessel-api.parsec.app/v1/auth")!
 
-		var request = URLRequest(url:apiURL)
-		request.httpMethod = "POST";
-		request.setValue("application/json", forHTTPHeaderField:"Content-Type")
+		var request = URLRequest(url: apiURL)
+		request.httpMethod = "POST"
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		request.setValue("parsec/150-93b Windows/11 libmatoya/4.0", forHTTPHeaderField: "User-Agent")
 		request.httpBody = try? JSONSerialization.data(withJSONObject:
-		[
-			"email":inputEmail,
-			"password":inputPassword,
-			"tfa": tfa
-		], options:[])
+			[
+				"email": inputEmail,
+				"password": inputPassword,
+				"tfa": tfa
+			], options: [])
 
-		let task = URLSession.shared.dataTask(with:request)
-		{ (data, response, error) in
+		let task = URLSession.shared.dataTask(with: request)
+		{ data, response, _ in
 			isLoading = false
 			if let data = data
 			{
-				let statusCode:Int = (response as! HTTPURLResponse).statusCode
+				let statusCode: Int = (response as! HTTPURLResponse).statusCode
 				let decoder = JSONDecoder()
 
 				print("Login Information:")
 				print(statusCode)
-				print(String(data:data, encoding:.utf8)!)
+				print(String(data: data, encoding: .utf8)!)
 
 				if statusCode == 201 // 201 Created
 				{
 					// store it and recover it from the next app opening, so people won't swear
-					NetworkHandler.clinfo = try? decoder.decode(ClientInfo.self, from:data)
+					NetworkHandler.clinfo = try? decoder.decode(ClientInfo.self, from: data)
 
 					saveToKeychain(data: data, key: GLBDataModel.shared.SessionKeyChainKey)
 
@@ -215,12 +216,13 @@ struct LoginView:View
 				}
 				else if statusCode >= 400 // 4XX client errors
 				{
-					let info:ErrorInfo = try! decoder.decode(ErrorInfo.self, from:data)
+					let info: ErrorInfo = try! decoder.decode(ErrorInfo.self, from: data)
 
 					do
 					{
 						let json = try JSONSerialization.jsonObject(with: data, options: [])
-						if let dict = json as? [String: Any], let isTFARequired = dict["tfa_required"] as? Bool {
+						if let dict = json as? [String: Any], let isTFARequired = dict["tfa_required"] as? Bool
+						{
 							print("Code output:")
 							print(dict)
 							if isTFARequired
@@ -232,7 +234,9 @@ struct LoginView:View
 								alertText = "Error: \(info)"
 								showAlert = true
 							}
-						} else {
+						}
+						else
+						{
 							alertText = info.error
 							showAlert = true
 						}
@@ -248,9 +252,9 @@ struct LoginView:View
 	}
 }
 
-struct LoginView_Previews:PreviewProvider
+struct LoginView_Previews: PreviewProvider
 {
-	static var previews:some View
+	static var previews: some View
 	{
 		LoginView(nil)
 	}

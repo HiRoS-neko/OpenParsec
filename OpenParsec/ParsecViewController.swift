@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import UIKit
 import ParsecSDK
-
+import UIKit
 
 protocol ParsecPlayground {
 	init(viewController: UIViewController, updateImage: @escaping () -> Void)
@@ -17,24 +16,23 @@ protocol ParsecPlayground {
 	func updateSize(width: CGFloat, height: CGFloat)
 }
 
-
-class ParsecViewController :UIViewController {
+class ParsecViewController: UIViewController {
 	var glkView: ParsecPlayground!
 	var gamePadController: GamepadController!
 	var touchController: TouchController!
-	var u:UIImageView?
+	var u: UIImageView?
 	var lastImg: CGImage?
 	
-	var lastLongPressPoint : CGPoint = CGPoint()
+	var lastLongPressPoint: CGPoint = .init()
 	
-	var keyboardAccessoriesView : UIView?
-	var keyboardHeight : CGFloat = 0.0
+	var keyboardAccessoriesView: UIView?
+	var keyboardHeight: CGFloat = 0.0
 	
 	override var prefersPointerLocked: Bool {
 		return true
 	}
 	
-	override var prefersHomeIndicatorAutoHidden : Bool {
+	override var prefersHomeIndicatorAutoHidden: Bool {
 		return true
 	}
 	
@@ -47,21 +45,22 @@ class ParsecViewController :UIViewController {
 		self.touchController = TouchController(viewController: self)
 	}
 	
+	@available(*, unavailable)
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
 	func updateImage() {
-		if CParsec.mouseInfo.cursorImg != nil && !CParsec.mouseInfo.cursorHidden {
-			if lastImg != CParsec.mouseInfo.cursorImg{
+		if CParsec.mouseInfo.cursorImg != nil, !CParsec.mouseInfo.cursorHidden {
+			if lastImg != CParsec.mouseInfo.cursorImg {
 				u!.image = UIImage(cgImage: CParsec.mouseInfo.cursorImg!)
 				lastImg = CParsec.mouseInfo.cursorImg!
 			}
 
 			u?.frame = CGRect(x: Int(CParsec.mouseInfo.mouseX) - Int(Float(CParsec.mouseInfo.cursorHotX) * SettingsHandler.cursorScale),
-							  y: Int(CParsec.mouseInfo.mouseY) - Int(Float(CParsec.mouseInfo.cursorHotY) * SettingsHandler.cursorScale),
-							  width: Int(Float(CParsec.mouseInfo.cursorWidth) * SettingsHandler.cursorScale),
-							  height: Int(Float(CParsec.mouseInfo.cursorHeight) * SettingsHandler.cursorScale))
+			                  y: Int(CParsec.mouseInfo.mouseY) - Int(Float(CParsec.mouseInfo.cursorHotY) * SettingsHandler.cursorScale),
+			                  width: Int(Float(CParsec.mouseInfo.cursorWidth) * SettingsHandler.cursorScale),
+			                  height: Int(Float(CParsec.mouseInfo.cursorHeight) * SettingsHandler.cursorScale))
 			
 		} else {
 			u?.image = nil
@@ -73,7 +72,7 @@ class ParsecViewController :UIViewController {
 		touchController.viewDidLoad()
 		gamePadController.viewDidLoad()
 		
-		u = UIImageView(frame: CGRect(x: 0,y: 0,width: 100, height: 100))
+		u = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 		view.addSubview(u!)
 		
 		becomeFirstResponder()
@@ -85,32 +84,30 @@ class ParsecViewController :UIViewController {
 		view.isMultipleTouchEnabled = true
 		view.isUserInteractionEnabled = true
 
-		let panGestureRecognizer = UIPanGestureRecognizer(target:self, action:#selector(self.handlePanGesture(_:)))
+		let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
 		panGestureRecognizer.delegate = self
 		view.addGestureRecognizer(panGestureRecognizer)
 
-		
-		
 		// Add tap gesture recognizer for single-finger touch
-		let singleFingerTapGestureRecognizer = UITapGestureRecognizer(target:self, action:#selector(handleSingleFingerTap(_:)))
+		let singleFingerTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleFingerTap(_:)))
 		singleFingerTapGestureRecognizer.numberOfTouchesRequired = 1
 		singleFingerTapGestureRecognizer.allowedTouchTypes = [0, 2]
 		view.addGestureRecognizer(singleFingerTapGestureRecognizer)
 
 		// Add tap gesture recognizer for two-finger touch
-		let twoFingerTapGestureRecognizer = UITapGestureRecognizer(target:self, action:#selector(handleTwoFingerTap(_:)))
+		let twoFingerTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTwoFingerTap(_:)))
 		twoFingerTapGestureRecognizer.numberOfTouchesRequired = 2
 		twoFingerTapGestureRecognizer.allowedTouchTypes = [0]
 		view.addGestureRecognizer(twoFingerTapGestureRecognizer)
 		//		view.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
 		//		view.backgroundColor = UIColor(red: 0x66, green: 0xcc, blue: 0xff, alpha: 1.0)
 		
-		let threeFingerTapGestureRecognizer = UITapGestureRecognizer(target:self, action:#selector(handleThreeFinderTap(_:)))
+		let threeFingerTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleThreeFinderTap(_:)))
 		threeFingerTapGestureRecognizer.numberOfTouchesRequired = 3
 		threeFingerTapGestureRecognizer.allowedTouchTypes = [0]
 		view.addGestureRecognizer(threeFingerTapGestureRecognizer)
 		
-		let longPressGestureRecognizer = UILongPressGestureRecognizer(target:self, action:#selector(handleLongPress(_:)))
+		let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
 		longPressGestureRecognizer.numberOfTouchesRequired = 1
 		longPressGestureRecognizer.allowedTouchTypes = [0, 2]
 		view.addGestureRecognizer(longPressGestureRecognizer)
@@ -128,7 +125,6 @@ class ParsecViewController :UIViewController {
 			name: UIResponder.keyboardWillHideNotification,
 			object: nil
 		)
-		
 	}
 	
 	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -137,7 +133,7 @@ class ParsecViewController :UIViewController {
 		let h = size.height
 		let w = size.width
 		
-		self.glkView.updateSize(width: w, height: h)
+		glkView.updateSize(width: w, height: h)
 		CParsec.setFrame(w, h, UIScreen.main.scale)
 	}
 	
@@ -159,21 +155,16 @@ class ParsecViewController :UIViewController {
 		NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
 	}
 	
-	
 	override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-		
 		for press in presses {
-			CParsec.sendKeyboardMessage(event:KeyBoardKeyEvent(input: press.key, isPressBegin: true) )
+			CParsec.sendKeyboardMessage(event: KeyBoardKeyEvent(input: press.key, isPressBegin: true))
 		}
-		
 	}
 	
-	override func pressesEnded (_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-		
+	override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
 		for press in presses {
-			CParsec.sendKeyboardMessage(event:KeyBoardKeyEvent(input: press.key, isPressBegin: false) )
+			CParsec.sendKeyboardMessage(event: KeyBoardKeyEvent(input: press.key, isPressBegin: false))
 		}
-		
 	}
 	
 	@objc func keyboardWillShow(_ notification: Notification) {
@@ -186,13 +177,10 @@ class ParsecViewController :UIViewController {
 	@objc func keyboardWillHide(_ notification: Notification) {
 		view.frame.origin.y = 0
 	}
-	
 }
 
-extension ParsecViewController : UIGestureRecognizerDelegate {
-	
-	@objc func handlePanGesture(_ gestureRecognizer:UIPanGestureRecognizer)
-	{
+extension ParsecViewController: UIGestureRecognizerDelegate {
+	@objc func handlePanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
 		//		print("number = \(gestureRecognizer.numberOfTouches) status = \(gestureRecognizer.state.rawValue)")
 		if gestureRecognizer.numberOfTouches == 2 {
 			let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
@@ -203,12 +191,11 @@ extension ParsecViewController : UIGestureRecognizerDelegate {
 				return
 			}
 			if SettingsHandler.cursorMode == .direct {
-				let location = gestureRecognizer.location(in:gestureRecognizer.view)
+				let location = gestureRecognizer.location(in: gestureRecognizer.view)
 				touchController.onTouch(typeOfTap: 1, location: location, state: gestureRecognizer.state)
 			}
 
 		} else if gestureRecognizer.numberOfTouches == 1 {
-
 			if SettingsHandler.cursorMode == .direct {
 				let position = gestureRecognizer.location(in: gestureRecognizer.view)
 				CParsec.sendMousePosition(Int32(position.x), Int32(position.y))
@@ -217,39 +204,31 @@ extension ParsecViewController : UIGestureRecognizerDelegate {
 				CParsec.sendMouseDelta(Int32(Float(delta.x) / 60 * SettingsHandler.mouseSensitivity), Int32(Float(delta.y) / 60 * SettingsHandler.mouseSensitivity))
 			}
 
-			
-			if gestureRecognizer.state == .began && SettingsHandler.cursorMode == .direct {
-				let button = ParsecMouseButton.init(rawValue: 1)
+			if gestureRecognizer.state == .began, SettingsHandler.cursorMode == .direct {
+				let button = ParsecMouseButton(rawValue: 1)
 				CParsec.sendMouseClickMessage(button, true)
 			}
 			
 		} else if gestureRecognizer.numberOfTouches == 0 {
-			if (gestureRecognizer.state == .ended || gestureRecognizer.state == .cancelled) && SettingsHandler.cursorMode == .direct {
-				let button = ParsecMouseButton.init(rawValue: 1)
+			if gestureRecognizer.state == .ended || gestureRecognizer.state == .cancelled, SettingsHandler.cursorMode == .direct {
+				let button = ParsecMouseButton(rawValue: 1)
 				CParsec.sendMouseClickMessage(button, false)
 			}
 		}
-		
-		
 	}
-	
-	@objc func handleSingleFingerTap(_ gestureRecognizer:UITapGestureRecognizer)
-	{
-		let location = gestureRecognizer.location(in:gestureRecognizer.view)
+
+	@objc func handleSingleFingerTap(_ gestureRecognizer: UITapGestureRecognizer) {
+		let location = gestureRecognizer.location(in: gestureRecognizer.view)
 		touchController.onTap(typeOfTap: 1, location: location)
-		
 	}
 	
-	@objc func handleTwoFingerTap(_ gestureRecognizer:UITapGestureRecognizer)
-	{
-		let location : CGPoint;
+	@objc func handleTwoFingerTap(_ gestureRecognizer: UITapGestureRecognizer) {
+		let location: CGPoint
 		switch SettingsHandler.rightClickPosition {
 		case .firstFinger:
 			location = gestureRecognizer.location(ofTouch: 0, in: gestureRecognizer.view)
-			break;
 		case .secondFinger:
 			location = gestureRecognizer.location(ofTouch: 1, in: gestureRecognizer.view)
-			break
 		default:
 			location = gestureRecognizer.location(in: gestureRecognizer.view)
 		}
@@ -257,17 +236,17 @@ extension ParsecViewController : UIGestureRecognizerDelegate {
 		touchController.onTap(typeOfTap: 3, location: location)
 	}
 	
-	@objc func handleThreeFinderTap(_ gestureRecognizer:UITapGestureRecognizer) {
+	@objc func handleThreeFinderTap(_ gestureRecognizer: UITapGestureRecognizer) {
 		showKeyboard()
 	}
 	
-	@objc func handleLongPress(_ gestureRecognizer:UIGestureRecognizer) {
+	@objc func handleLongPress(_ gestureRecognizer: UIGestureRecognizer) {
 		if SettingsHandler.cursorMode != .touchpad {
 			return
 		}
-		let button = ParsecMouseButton.init(rawValue: 1)
+		let button = ParsecMouseButton(rawValue: 1)
 		
-		if gestureRecognizer.state == .began{
+		if gestureRecognizer.state == .began {
 			CParsec.sendMouseClickMessage(button, true)
 			lastLongPressPoint = gestureRecognizer.location(in: gestureRecognizer.view)
 		} else if gestureRecognizer.state == .ended {
@@ -281,14 +260,12 @@ extension ParsecViewController : UIGestureRecognizerDelegate {
 			lastLongPressPoint = newLocation
 		}
 	}
-	
 }
 	
-extension ParsecViewController : UIPointerInteractionDelegate {
+extension ParsecViewController: UIPointerInteractionDelegate {
 	func pointerInteraction(_ interaction: UIPointerInteraction, styleFor region: UIPointerRegion) -> UIPointerStyle? {
 		return UIPointerStyle.hidden()
 	}
-
 
 	func pointerInteraction(_ inter: UIPointerInteraction, regionFor request: UIPointerRegionRequest, defaultRegion: UIPointerRegion) -> UIPointerRegion? {
 		let loc = request.location
@@ -299,12 +276,11 @@ extension ParsecViewController : UIPointerInteractionDelegate {
 		}
 		return nil
 	}
-	
 }
 
-class KeyBoardButton : UIButton {
-	let keyText : String
-	let isToggleable : Bool
+class KeyBoardButton: UIButton {
+	let keyText: String
+	let isToggleable: Bool
 	var isOn = false
 	
 	required init(keyText: String, isToggleable: Bool) {
@@ -313,16 +289,16 @@ class KeyBoardButton : UIButton {
 		super.init(frame: .zero)
 		addTarget(self, action: #selector(handleTouchDown), for: .touchDown)
 		addTarget(self, action: #selector(handleTouchUp), for: [.touchUpInside, .touchDragExit, .touchCancel])
-			
 	}
 	
+	@available(*, unavailable)
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
 	// Add a press-down animation for feedback
 	@objc private func handleTouchDown() {
-		self.alpha = 0.5
+		alpha = 0.5
 	}
 	
 	// Restore to normal state when touch ends
@@ -334,7 +310,8 @@ class KeyBoardButton : UIButton {
 }
 
 // MARK: - Virtual Keyboard
-extension ParsecViewController : UIKeyInput, UITextInputTraits {
+
+extension ParsecViewController: UIKeyInput, UITextInputTraits {
 	var hasText: Bool {
 		return true
 	}
@@ -343,9 +320,7 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		get {
 			return .asciiCapable
 		}
-		set {
-			
-		}
+		set {}
 	}
 	
 	override var canBecomeFirstResponder: Bool {
@@ -362,14 +337,13 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 	
 	// copied from moonlight https://github.com/moonlight-stream/moonlight-ios/blob/022352c1667788d8626b659d984a290aa5c25e17/Limelight/Input/StreamView.m#L393
 	override var inputAccessoryView: UIView? {
-		
 		if let keyboardAccessoriesView {
 			return keyboardAccessoriesView
 		}
 		let containerView = UIStackView(frame: CGRect(x: 0, y: 0, width: CGFloat.infinity, height: 94))
 		containerView.translatesAutoresizingMaskIntoConstraints = false
 		
-		let customToolbarView = UIToolbar(frame: CGRect(x: 0, y: 50, width: self.view.bounds.size.width, height: 44))
+		let customToolbarView = UIToolbar(frame: CGRect(x: 0, y: 50, width: view.bounds.size.width, height: 44))
 		customToolbarView.translatesAutoresizingMaskIntoConstraints = false
 		
 		let scrollView = UIScrollView()
@@ -407,11 +381,9 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		let leftButton = createKeyboardButton(displayText: "←", keyText: "LEFT", isToggleable: false)
 		let rightButton = createKeyboardButton(displayText: "→", keyText: "RIGHT", isToggleable: false)
 		
-
 		let buttons = [windowsBarButton, escapeBarButton, tabBarButton, shiftBarButton, controlBarButton, altBarButton, deleteBarButton,
-					   f1Button, f2Button, f3Button, f4Button, f5Button, f6Button, f7Button, f8Button, f9Button, f10Button, f11Button, f12Button,
-								   upButton, downButton, leftButton, rightButton
-		]
+		               f1Button, f2Button, f3Button, f4Button, f5Button, f6Button, f7Button, f8Button, f9Button, f10Button, f11Button, f12Button,
+		               upButton, downButton, leftButton, rightButton]
 		
 		for button in buttons {
 			buttonStackView.addArrangedSubview(button)
@@ -419,13 +391,10 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		
 		scrollView.addSubview(buttonStackView)
 		
-		
-		
 		let scrollViewContainer = UIView()
 		scrollViewContainer.translatesAutoresizingMaskIntoConstraints = false
 		scrollViewContainer.addSubview(scrollView)
 
-		
 		NSLayoutConstraint.activate([
 			scrollView.leadingAnchor.constraint(equalTo: scrollViewContainer.leadingAnchor),
 			scrollView.trailingAnchor.constraint(equalTo: scrollViewContainer.trailingAnchor),
@@ -447,7 +416,6 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 			buttonStackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
 		])
 		
-		
 		let container2 = UIStackView()
 		container2.axis = .horizontal
 		container2.distribution = .fill
@@ -458,7 +426,7 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		doneButton2.setTitle("Done", for: .normal)
 		doneButton2.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
 		if #available(iOS 15.0, *) {
-			doneButton2.setTitleColor(.tintColor,  for: .normal)
+			doneButton2.setTitleColor(.tintColor, for: .normal)
 		}
 		container2.addArrangedSubview(doneButton2)
 
@@ -466,14 +434,13 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		
 		customToolbarView.setItems([scrollViewBarButton], animated: false)
 		
-		
 		// Create a draggable handle button
 		let handleButton = UIButton(type: .system)
 		handleButton.setTitle("↑↓", for: .normal)
 		handleButton.backgroundColor = UIColor.systemGray.withAlphaComponent(0.5)
 		handleButton.translatesAutoresizingMaskIntoConstraints = false
 		
-		let panGestureRecognizer = UIPanGestureRecognizer(target:self, action:#selector(self.handleDragGesture(_:)))
+		let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleDragGesture(_:)))
 		panGestureRecognizer.maximumNumberOfTouches = 1
 		handleButton.addGestureRecognizer(panGestureRecognizer)
 		
@@ -542,7 +509,6 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		sender.isOn = isOn
 		let keyText = sender.keyText
 
-		
 		if isToggleable {
 			if isOn {
 				CParsec.sendVirtualKeyboardInput(text: keyText, isOn: true)
@@ -552,10 +518,9 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 		} else {
 			CParsec.sendVirtualKeyboardInput(text: keyText)
 		}
-		
 	}
 	
-	@objc func handleDragGesture(_ gestureRecognizer:UIPanGestureRecognizer) {
+	@objc func handleDragGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
 		let v = view.frame.origin.y + gestureRecognizer.velocity(in: nil).y / 50.0
 		let newY = ParsecSDKBridge.clamp(v, minValue: -keyboardHeight, maxValue: 0)
 		view.frame.origin.y = newY
@@ -569,5 +534,4 @@ extension ParsecViewController : UIKeyInput, UITextInputTraits {
 	@objc func showKeyboard() {
 		becomeFirstResponder()
 	}
-	
 }

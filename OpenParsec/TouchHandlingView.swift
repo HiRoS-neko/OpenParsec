@@ -1,21 +1,21 @@
 import ParsecSDK
 import UIKit
 
-
 class TouchController
 {
 	let viewController: UIViewController
-	init(viewController: UIViewController) {
+	init(viewController: UIViewController)
+	{
 		self.viewController = viewController
 	}
-	
-	func onTouch(typeOfTap:Int, location:CGPoint, state:UIGestureRecognizer.State)
+
+	func onTouch(typeOfTap: Int, location: CGPoint, state: UIGestureRecognizer.State)
 	{
 		let x = Int32(location.x)
 		let y = Int32(location.y)
 
 		// Send the mouse input to the host
-		let parsecTap = ParsecMouseButton(rawValue:UInt32(typeOfTap))
+		let parsecTap = ParsecMouseButton(rawValue: UInt32(typeOfTap))
 		switch state
 		{
 			case .began:
@@ -29,37 +29,43 @@ class TouchController
 		}
 	}
 
-	func onTap(typeOfTap:Int, location:CGPoint)
+	func onHover(location: CGPoint)
 	{
-		let parsecTap = ParsecMouseButton(rawValue:UInt32(typeOfTap))
-		if SettingsHandler.cursorMode == .direct {
+		if SettingsHandler.cursorMode == .direct
+		{
+			let x = Int32(location.x)
+			let y = Int32(location.y)
+
+			CParsec.sendMousePosition(x, y)
+		}
+	}
+
+	func onTap(typeOfTap: Int, location: CGPoint)
+	{
+		let parsecTap = ParsecMouseButton(rawValue: UInt32(typeOfTap))
+		if SettingsHandler.cursorMode == .direct
+		{
 			let x = Int32(location.x)
 			let y = Int32(location.y)
 
 			// Send the mouse input to the host
 			// add release delay in case some games ignore instant key release
 			CParsec.sendMouseMessage(parsecTap, x, y, true)
-			DispatchQueue.global().asyncAfter(deadline: .now() + 0.02) {
+			DispatchQueue.global().asyncAfter(deadline: .now() + 0.02)
+			{
 				CParsec.sendMouseMessage(parsecTap, x, y, false)
 			}
-
-		} else {
+		}
+		else
+		{
 			CParsec.sendMouseClickMessage(parsecTap, true)
-			DispatchQueue.global().asyncAfter(deadline: .now() + 0.02) {
+			DispatchQueue.global().asyncAfter(deadline: .now() + 0.02)
+			{
 				CParsec.sendMouseClickMessage(parsecTap, false)
 			}
 		}
-
 	}
 
-	public func viewDidLoad()
-	{
-
-
-		
-	}
-
-
-
-	
+	func viewDidLoad()
+	{}
 }
