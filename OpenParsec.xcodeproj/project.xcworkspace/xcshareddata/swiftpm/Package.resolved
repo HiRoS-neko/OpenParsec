@@ -1,0 +1,24 @@
+{
+  "originHash" : "b8c8459aa6c4dd50224ba9ab96a0eb6fc808c08c3a4cc07440d272a66f5c0efe",
+  "pins" : [
+    {
+      "identity" : "buttonkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Dean151/ButtonKit.git",
+      "state" : {
+        "revision" : "5d049dec3ec474ea2ad79eb4acd066edeacb9953",
+        "version" : "0.6.1"
+      }
+    },
+    {
+      "identity" : "sfsafesymbols",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SFSafeSymbols/SFSafeSymbols.git",
+      "state" : {
+        "revision" : "e01b3d4f861412f8dcee8d93c417d2c2b0cdfd77",
+        "version" : "7.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

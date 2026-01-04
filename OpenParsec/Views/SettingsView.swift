@@ -81,7 +81,7 @@ struct SettingsView: View {
 					Button(role: .confirm) {
 						saveAndExit()
 					} label: {
-						Label("Confirm", image: "checkmark")
+						Label("Confirm", systemImage: "checkmark")
 					}
 				}
 				

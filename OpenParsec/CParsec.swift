@@ -1,7 +1,6 @@
 import ParsecSDK
 import SwiftUI
 import CoreGraphics
-import GLKit
 
 class ParsecResolution : Hashable {
 	var width : Int
